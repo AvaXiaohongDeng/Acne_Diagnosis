@@ -31,10 +31,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import org.json.JSONObject
 import project.capstone6.acne_diagnosis.databinding.ActivityTakeSelfieBinding
-import java.io.ByteArrayOutputStream
-import java.io.File
 import java.util.*
 import android.annotation.SuppressLint
+import android.os.FileUtils
+import java.io.*
+import java.net.HttpURLConnection
+import java.net.URL
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import javax.net.ssl.*
@@ -197,6 +199,8 @@ class TakeSelfie : AppCompatActivity() {
         } catch (ignored: java.lang.Exception) {
         }
     }
+
+
     fun postPathByVolley(fullDirectory: String) {
 
         val url1: String = "https://10.0.2.2:5001/api/Image"
@@ -241,13 +245,12 @@ class TakeSelfie : AppCompatActivity() {
 
         // Add the volley post request to the request queue
         VolleySingleton.getInstance(this).addToRequestQueue(request1)
-
     }
 
-    /*
+
     fun postImageByHttpURLConnection(bitmap: Bitmap) {
         try {
-            val url = URL("http://localhost:44374/api/Image")
+            val url = URL("https://10.0.2.2:44374/api/Image")
             val c: HttpURLConnection = url.openConnection() as HttpURLConnection
             c.setDoInput(true)
             c.setRequestMethod("POST")
@@ -255,7 +258,7 @@ class TakeSelfie : AppCompatActivity() {
             c.connect()
 
             val output: OutputStream = c.getOutputStream()
-            bitmap.compress(CompressFormat.JPEG, 50, output)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, output)
             output.close()
 
             val result = Scanner(c.getInputStream())
@@ -267,12 +270,12 @@ class TakeSelfie : AppCompatActivity() {
             Log.e("ImageUploader", "Error uploading image", e)
         }
     }
-    */
 
 
     fun postImageByVolley(image: Bitmap) {
 
-        val url2: String = "https://10.0.2.2:5001/api/Image"
+        val url2: String = "https://10.0.2.2:44374/api/Image"
+        //val url2: String = "https://10.0.2.2:5001/api/Image"
 
         //converting image to base64 string
         val baos = ByteArrayOutputStream()
