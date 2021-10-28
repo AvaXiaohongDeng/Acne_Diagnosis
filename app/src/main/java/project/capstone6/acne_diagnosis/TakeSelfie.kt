@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
@@ -19,28 +18,22 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import com.android.volley.AuthFailureError
-import com.android.volley.DefaultRetryPolicy
-import com.android.volley.Request
 import com.android.volley.Response
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.StringRequest
 import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import org.json.JSONObject
 import project.capstone6.acne_diagnosis.databinding.ActivityTakeSelfieBinding
+import java.io.ByteArrayOutputStream
+import java.io.File
 import java.util.*
 import android.annotation.SuppressLint
-import android.os.FileUtils
-import java.io.*
-import java.net.HttpURLConnection
-import java.net.URL
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import javax.net.ssl.*
 
+import com.android.volley.toolbox.Volley
 
 private const val FILE_NAME = "selfie"
 
@@ -57,14 +50,16 @@ class TakeSelfie : AppCompatActivity() {
 
     private lateinit var subDir: String
     private lateinit var fullDir: String
-
+    private lateinit var responseFromApi: String
 
     var firebaseAuth: FirebaseAuth? = null
 
+    // embedded obj to pass around
     companion object {
         const val REQUEST_FROM_CAMERA = 1001
         const val EXTRA_FULLDIRECTORY = "SavedFulldirectory"
         const val EXTRA_SUBDIRECTORY = "SavedSubdirectory"
+        const val RESPONSE_BY_API = "response"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,6 +71,8 @@ class TakeSelfie : AppCompatActivity() {
         btnTakeSelfie = binding2.btnTakeSelfie
         btnDiagnosis = binding2.btnDiagnosis
         imageView = binding2.imageView
+
+        responseFromApi = ""
 
         // Initialise Firebase
         firebaseAuth = FirebaseAuth.getInstance()
@@ -102,26 +99,28 @@ class TakeSelfie : AppCompatActivity() {
         btnDiagnosis.setOnClickListener {
 
             if (subDir != "" && subDir != null) {
-                // call intent to go to result page
-                val intent = Intent(this, Result::class.java)
-
-                //pass fulldirectory information to Result page
-                //Toast.makeText(this," Save Subdir as " + subDir,Toast.LENGTH_LONG).show()
-                intent.putExtra(EXTRA_FULLDIRECTORY, fullDir)
-                intent.putExtra(EXTRA_SUBDIRECTORY, subDir)
-                startActivity(intent)
 
                 handleSSLHandshake()
 
+                // call intent to go to result page
+                val intent = Intent(this, Result::class.java)
+
                 //upload image to API by Volley
                 postImageByVolley(takenImage)
+                Log.w("Response in takeSelfie btnClick-----------", responseFromApi)
+                intent.putExtra(RESPONSE_BY_API, responseFromApi)
 
-                //upload image to API by HttpURLConnection
-                //postImageByHttpURLConnection(takenImage)
+                // pass image
+                val baos = ByteArrayOutputStream()
+                takenImage.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                val imageBytes = baos.toByteArray()
+                intent.putExtra("ImageFile", imageBytes)
 
-                //pass path message to API
-                //postPathByVolley(fullDir)
+                //pass fulldirectory information to Result page
+                intent.putExtra(EXTRA_FULLDIRECTORY, fullDir)
+                intent.putExtra(EXTRA_SUBDIRECTORY, subDir)
 
+                startActivity(intent)
             }else {
 
                 // Tell user to wait
@@ -200,112 +199,32 @@ class TakeSelfie : AppCompatActivity() {
         }
     }
 
-
-    fun postPathByVolley(fullDirectory: String) {
-
-        val url1: String = "https://10.0.2.2:5001/api/Image"
-        //val url1: String = "https://reqres.in/api/dir"
-
-        // Post parameters, Form fields and values
-        val params = HashMap<String, String>()
-        params["fullDirectory"] = fullDirectory
-        val jsonObject = JSONObject(params as Map<*, *>)
-
-        // Volley post request with parameters
-        val request1 = JsonObjectRequest(
-            Request.Method.POST, url1, jsonObject,
-            Response.Listener { response ->
-                // Process the json
-                try {
-                    //textView.text = "Response: $response"
-                    Toast.makeText(
-                        this,
-                        "Response: \nPath are posted to API. \n$response",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } catch (e: Exception) {
-                    //textView.text = "Exception: $e"
-                    Toast.makeText(this, "Exception: $e", Toast.LENGTH_LONG).show()
-                }
-
-            }, Response.ErrorListener {
-                // Error in request
-                //textView.text = "Volley error: $it"
-                Toast.makeText(this, "Volley error: $it", Toast.LENGTH_LONG).show()
-            })
-
-
-        // Volley request policy, only one time request to avoid duplicate transaction
-        request1.retryPolicy = DefaultRetryPolicy(
-            DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
-            // 0 means no retry
-            0, // DefaultRetryPolicy.DEFAULT_MAX_RETRIES = 2
-            1f // DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-        )
-
-        // Add the volley post request to the request queue
-        VolleySingleton.getInstance(this).addToRequestQueue(request1)
-    }
-
-
-    fun postImageByHttpURLConnection(bitmap: Bitmap) {
-        try {
-            val url = URL("https://10.0.2.2:44374/api/Image")
-            val c: HttpURLConnection = url.openConnection() as HttpURLConnection
-            c.setDoInput(true)
-            c.setRequestMethod("POST")
-            c.setDoOutput(true)
-            c.connect()
-
-            val output: OutputStream = c.getOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, output)
-            output.close()
-
-            val result = Scanner(c.getInputStream())
-            val response: String = result.nextLine()
-            Log.e("ImageUploader", "Error uploading image: $response")
-
-            result.close()
-        } catch (e: IOException) {
-            Log.e("ImageUploader", "Error uploading image", e)
-        }
-    }
-
-
+    // send http post request to communicate with api and get the response with its header
     fun postImageByVolley(image: Bitmap) {
+        val url2: String = "https://10.0.2.2:5001/api/Image"
 
-        val url2: String = "https://10.0.2.2:44374/api/Image"
-        //val url2: String = "https://10.0.2.2:5001/api/Image"
-
-        //converting image to base64 string
+        //converting image to bytes/base64 string
         val baos = ByteArrayOutputStream()
         image.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val imageBytes = baos.toByteArray()
-        val imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT)
+        val imageBytes = baos.toByteArray() // get data from drawabale
 
         //sending image to server
-        val request2: StringRequest = object : StringRequest(
+        val request2: VolleyMultipartRequest = object : VolleyMultipartRequest(
             Method.POST, url2,
-//            Response.Listener { s ->
-//                if (s == "true") {
-//                    Toast.makeText(this@TakeSelfie, "Uploaded Image Successful", Toast.LENGTH_LONG)
-//                        .show()
-//                } else {
-//                    Toast.makeText(this@TakeSelfie, "Some error occurred!", Toast.LENGTH_LONG)
-//                        .show()
-//                }
-//            },
               Response.Listener { response ->
                 // Process the json
                 try {
                     //textView.text = "Response: $response"
+                    responseFromApi = response.toString()
+
+                    // debugging
+                    Log.e("Response in takeSelfie-----------", responseFromApi)
                     Toast.makeText(
                         this,
-                        "Response: \nPath are posted to API. \n$response",
+                        "Response: \nPath are posted to API. \n${responseFromApi}\n${response.data}\n${response.headers}",
                         Toast.LENGTH_LONG
                     ).show()
                 } catch (e: Exception) {
-                    //textView.text = "Exception: $e"
                     Toast.makeText(this, "Exception: $e", Toast.LENGTH_LONG).show()
                 }
 
@@ -315,26 +234,34 @@ class TakeSelfie : AppCompatActivity() {
                     "Some error occurred -> $volleyError",
                     Toast.LENGTH_LONG
                 ).show()
+                // debugging
                 Log.e("Volley Error-----------", "${volleyError.cause}")
                 Log.e("Volley Error-----------", "${volleyError.message}")
 
             }) {
-            //adding parameters to send
+
+            // setup parameters
+            protected open fun getByteData(): MutableMap<String, DataPart> {
+                val params: MutableMap<String, DataPart> = HashMap()
+                val imageName = System.currentTimeMillis()
+                params["image"] = DataPart("$imageName.png", imageBytes)
+                return params
+            }
+
+            // get the header data
             @Throws(AuthFailureError::class)
-            override fun getParams(): Map<String, String>? {
-                val parameters: MutableMap<String, String> = HashMap()
-                parameters["image"] = imageString
-                return parameters
+            override fun getHeaders(): Map<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Content-Type"] = "text/plain; charset=utf-8"
+                return headers
             }
         }
-
         // Add the volley post request to the request queue
-        VolleySingleton.getInstance(this).addToRequestQueue(request2)
+        Volley.newRequestQueue(this).add(request2)
     }
 
     //process menu
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-
         val inflater = menuInflater
         inflater.inflate(R.menu.takeselfiemenu, menu)
         return true
