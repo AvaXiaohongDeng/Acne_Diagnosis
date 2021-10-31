@@ -24,20 +24,21 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
+        android:layout_width="240dp"
         android:layout_height="280dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="40dp"
         android:contentDescription="@string/todo"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnTakeSelfie"
-        app:srcCompat="@drawable/takepicture"
+        app:srcCompat="@drawable/acne1"
         tools:ignore="ContentDescription,ImageContrastCheck" />
 
     <Button
         android:id="@+id/btnDiagnosis"
         android:layout_width="220dp"
         android:layout_height="60dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="40dp"
         android:backgroundTint="@color/purple_500"
         android:text="@string/diagnosis"
         android:textColor="@color/white"
