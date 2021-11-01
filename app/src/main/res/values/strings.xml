@@ -8,14 +8,8 @@
     <string name="redo_analysis">Redo Analysis</string>
     <string name="link1"><u></u></string>
     <string name="link2"><u></u></string>
-    <string name="feed1">Integer malesuada a lorem at ornare.
-        In elementum est eu massa malesuada, a tempor ipsum placerat. Ut pretium diam est.
-        Praesent a massa ultrices.</string>
-    <string name="feed2">Suspendisse feugiat mollis nisi, sit amet vehicula urna mollis sed. Mauris
-        ornare felis ut pellentesque aliquet. Nunc hendrerit leo a scelerisque efficitur. Fusce vel
-        ex imperdiet, ultrices nisl ut, luctus risus. In fringilla eget massa sed tempus. Aenean
-        gravida tortor lacus, ut interdum massa pharetra vitae. </string>
-    <string name="feed3">Suspendisse feugiat mollis nisi, sit amet vehicula urna mollis sed. Mauris
-        ornare felis ut pellentesque aliquet.  </string>
+    <string name="feed1">Acne is a skin condition that occurs when your hair follicles become plugged with oil and dead skin cells. It causes whiteheads, blackheads or pimples. Acne is most common among teenagers, though it affects people of all ages.</string>
+    <string name="feed2">Atopic dermatitis (eczema) is a condition that makes your skin red and itchy. It is common in children but can occur at any age. Atopic dermatitis is long lasting (chronic) and tends to flare periodically. It may be accompanied by asthma or hay fever.</string>
+    <string name="feed3">Shingles is a viral infection that causes a painful rash. Although shingles can occur anywhere on your body, it most often appears as a single stripe of blisters that wraps around either the left or the right side of your torso. </string>
 
 </resources>
