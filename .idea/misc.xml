@@ -3,6 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/2 Capstone/Acne_Diagnosis/app/src/main/res/layout/activity_login.xml" value="0.264" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/2 Capstone/Acne_Diagnosis/app/src/main/res/layout/activity_main.xml" value="0.18342391304347827" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/2 Capstone/Acne_Diagnosis/app/src/main/res/layout/activity_register.xml" value="0.21331521739130435" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/2 Capstone/Acne_Diagnosis/app/src/main/res/layout/activity_result.xml" value="0.13541666666666666" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/2 Capstone/Acne_Diagnosis/app/src/main/res/layout/activity_take_selfie.xml" value="0.22871376811594202" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/2 Capstone/Acne_Diagnosis/app/src/main/res/layout/activity_website.xml" value="0.21331521739130435" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/2 Capstone/Acne_Diagnosis/app/src/main/res/layout/news_feeds.xml" value="0.21331521739130435" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/Acne_Diagnosis/app/src/main/res/layout/activity_main.xml" value="0.10914855072463768" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/Acne_Diagnosis/app/src/main/res/layout/activity_result.xml" value="0.20018115942028986" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/Acne_Diagnosis/app/src/main/res/layout/activity_take_selfie.xml" value="0.10914855072463768" />

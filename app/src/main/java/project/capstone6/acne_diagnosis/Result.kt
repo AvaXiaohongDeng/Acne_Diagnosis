@@ -372,3 +372,4 @@ class Result : AppCompatActivity() {
         finish()
     }
 }
+

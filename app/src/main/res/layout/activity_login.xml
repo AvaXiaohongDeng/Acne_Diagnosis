@@ -38,9 +38,10 @@
     <com.facebook.login.widget.LoginButton
         android:id="@+id/fbLogInButton"
         android:layout_width="216dp"
-        android:layout_height="37dp"
+        android:layout_height="48dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="32dp"
+        android:backgroundTint="@color/purple_500"
         android:elevation="5dp"
         android:paddingLeft="17dp"
         android:paddingTop="10dp"
@@ -123,7 +124,7 @@
         android:layout_width="183dp"
         android:layout_height="49dp"
         android:layout_marginTop="28dp"
-        android:backgroundTint="@color/com_facebook_button_send_background_color_pressed"
+        android:backgroundTint="@color/purple_500"
         android:text="Login"
         android:textAlignment="center"
         android:textStyle="bold"
@@ -155,5 +156,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/turnToReg" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/logo" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

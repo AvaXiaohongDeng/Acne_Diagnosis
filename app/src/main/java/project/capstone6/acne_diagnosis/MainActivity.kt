@@ -40,9 +40,9 @@ class MainActivity : AppCompatActivity() {
 
         for (i in 0 until size) {
             val drawable = when (i % 3) {
-                0 -> R.drawable.img1
-                1 -> R.drawable.img2
-                else -> R.drawable.img3
+                0 -> R.drawable.acne2
+                1 -> R.drawable.eczema1
+                else -> R.drawable.shingles1
             }
 
             val newsFeed = when (i % 3) {

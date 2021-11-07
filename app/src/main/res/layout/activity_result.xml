@@ -10,7 +10,7 @@
         android:id="@+id/tv1"
         android:layout_width="415dp"
         android:layout_height="131dp"
-        android:background="#3E8741"
+        android:background="@drawable/gradient3"
         android:gravity="bottom"
         android:paddingLeft="10px"
         android:paddingBottom="30px"
@@ -96,7 +96,7 @@
     <TextView
         android:id="@+id/medicalRtv1"
         android:layout_width="319dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:layout_marginTop="8dp"
         android:clickable="true"
         android:textAlignment="textStart"
@@ -107,12 +107,13 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/tv2"
         app:layout_constraintTop_toBottomOf="@+id/tv5"
+        tools:ignore="SpeakableTextPresentCheck"
         tools:text="@string/link1" />
 
     <TextView
         android:id="@+id/medicalRtv2"
         android:layout_width="319dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:layout_marginTop="4dp"
         android:clickable="true"
         android:textAlignment="textStart"
@@ -123,6 +124,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/tv2"
         app:layout_constraintTop_toBottomOf="@+id/medicalRtv1"
+        tools:ignore="SpeakableTextPresentCheck"
         tools:text="@string/link2" />
 
     <ImageView
@@ -138,11 +140,11 @@
 
     <Button
         android:id="@+id/btnAgain"
-        android:layout_width="wrap_content"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="72dp"
+        android:layout_marginStart="48dp"
         android:layout_marginTop="6dp"
-        android:backgroundTint="#3E8741"
+        android:backgroundTint="@color/purple_500"
         android:text="Again"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -152,11 +154,11 @@
 
     <Button
         android:id="@+id/btnExit"
-        android:layout_width="wrap_content"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="74dp"
-        android:layout_marginEnd="77dp"
-        android:backgroundTint="#3E8741"
+        android:layout_marginStart="60dp"
+        android:layout_marginEnd="60dp"
+        android:backgroundTint="@color/purple_500"
         android:text="Exit"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@+id/btnAgain"
@@ -164,5 +166,15 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/btnAgain"
         app:layout_constraintTop_toTopOf="@+id/btnAgain" />
+
+    <ImageView
+        android:id="@+id/imageView5"
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/logo" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
