@@ -16,8 +16,10 @@ import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import project.capstone6.acne_diagnosis.databinding.ActivityResultBinding
 import java.security.SecureRandom
@@ -33,10 +35,6 @@ class Result : AppCompatActivity() {
     private lateinit var skinProblem: TextView
     private lateinit var hybirdLink1: TextView
     private lateinit var hybirdLink2: TextView
-    private lateinit var memeImageView: ImageView
-    private lateinit var resultText: TextView
-    private lateinit var database: Firebase
-    private lateinit var ref: DatabaseReference
     private lateinit var picPath: String
     private lateinit var symptom: String
     private lateinit var linkList: List<String>
@@ -60,12 +58,16 @@ class Result : AppCompatActivity() {
         linkList = listOf()
         skinProblem = binding3.skinProblem
         resultFromResponse = ""
+        receivedImage = byteArrayOf()
 
         //Get intent obj
         val intent = getIntent()
-        picPath = intent.getStringExtra(TakeSelfie.EXTRA_FULLDIRECTORY).toString()
-        receivedImage = intent.getByteArrayExtra("ImageFile")!!
-        Log.e("picPath in result---------------", picPath)
+        if (intent != null) {
+            picPath = intent.getStringExtra(TakeSelfie.EXTRA_FULLDIRECTORY).toString()
+            if (intent.getByteArrayExtra("ImageFile") != null) {
+                receivedImage = intent.getByteArrayExtra("ImageFile")!!
+            }
+        }
 
         btnAgain.setOnClickListener {
             val intent3 = Intent(this, TakeSelfie::class.java)
@@ -80,10 +82,15 @@ class Result : AppCompatActivity() {
             logOut()
         }
 
+        handleSSLHandshake()
         // pass image to analyze
-        getResultFromVolley(receivedImage)
         getUser()
-        loadResult()
+        if (receivedImage.isNotEmpty()) {
+            getResultFromVolley(receivedImage)
+            loadResult()
+        }else{
+            loadResult()
+        }
 
     }
 
@@ -91,8 +98,12 @@ class Result : AppCompatActivity() {
     private fun getUser(){
         val user = FirebaseAuth.getInstance().currentUser
         val email = user?.email.toString()
+        if (user != null && email != null) {
+            binding3.tv2.text = "Hi $email"
+        }else{
+            binding3.tv2.text = "Please login"
+        }
 
-        binding3.tv2.text = "Hi $email"
     }
 
     @SuppressLint("SetTextI18n")
@@ -105,55 +116,124 @@ class Result : AppCompatActivity() {
         val user = FirebaseAuth.getInstance().currentUser
         val uid = user?.uid
 
-        // Retrieving result value from textView which is from api
-        resultFromResponse = skinProblem.text.toString()
+        // retriveing old result for exsiting user
+        if (!myRef.child(uid!!).child("result").equals("")){
+            myRef.child(uid.toString()).child("result").get().addOnSuccessListener {
+                if (it.exists()) {
+                    skinProblem.text = it.value.toString()
+                    // code to get the response from api and filter the keyword of the symptom and provide user
+                    // medical resources
+                    for(sym in SymptomEnum.values()){
+                        if (skinProblem.text.contains(sym.symptom)){
+                            symptom = sym.symptom
+                            //Get column from the table
+                            // if exists, then fetch the data and update the UI
+                            myRef.child(uid.toString()).get().addOnSuccessListener {
+                                if (it.exists()) {
+                                    if (it.child("image").exists()) {
+                                        //symptom = SymptomEnum.AR.symptom
+                                        myRef.child(uid.toString()).child("result").setValue(symptom)
+                                        if (getWebsite(symptom).isNotEmpty()) {
+                                            if (getWebsite(symptom).size > 1) {
+                                                hybirdLink1.text = getWebsite(symptom)[0]
+                                                hybirdLink2.text = getWebsite(symptom)[1]
+                                            }
+                                            hybirdLink1.text = getWebsite(symptom)[0]
+                                            // pass the url info based on the clicked link
+                                            val intent = Intent(this, Website::class.java)
+                                            hybirdLink1.setOnClickListener() {
+                                                intent.putExtra("URL", hybirdLink1.text.toString())
+                                                startActivity(intent)
+                                            }
+                                            hybirdLink2.setOnClickListener() {
+                                                intent.putExtra("URL", hybirdLink2.text.toString())
+                                                startActivity(intent)
+                                            }
+                                        } else{
+                                            // if no symptom found, then no medical resources provided, set it to ...
+                                            hybirdLink1.isClickable = false
+                                            hybirdLink2.isClickable = false
+                                            hybirdLink1.text = "..."
+                                            hybirdLink2.text = "..."
+                                        }
 
-        // code to get the response from api and filter the keyword of the symptom and provide user
-        // medical resources
-        for(sym in SymptomEnum.values()){
-            if (resultFromResponse.contains(sym.symptom)){
-                symptom = sym.symptom
-            }else{
-                //Toast.makeText(this, "Cannot be diagnosed", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        //Get column from the table
-        // if exists, then fetch the data and update the UI
-        myRef.child(uid.toString()).get().addOnSuccessListener {
-            if (it.exists()) {
-                if (it.child("image").exists()) {
-                   //symptom = SymptomEnum.AR.symptom
-                    myRef.child(uid.toString()).child("result").setValue(symptom)
-                    if (getWebsite(symptom).isNotEmpty()) {
-                        hybirdLink1.text = getWebsite(symptom)[0]
-                        hybirdLink2.text = getWebsite(symptom)[1]
-                        // pass the url info based on the clicked link
-                        val intent = Intent(this, Website::class.java)
-                        hybirdLink1.setOnClickListener() {
-                            intent.putExtra("URL", hybirdLink1.text.toString())
-                            startActivity(intent)
+                                    }else {
+                                        skinProblem.text = "You have not made any analysis"
+                                        Toast.makeText(this, "You have not made any analysis", Toast.LENGTH_SHORT).show()
+                                    }
+                                } else {
+                                    Toast.makeText(this, "Invalid user", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }else{
+                            //Toast.makeText(this, "Cannot be diagnosed", Toast.LENGTH_SHORT).show()
                         }
-                        hybirdLink2.setOnClickListener() {
-                            intent.putExtra("URL", hybirdLink2.text.toString())
-                            startActivity(intent)
-                        }
-                    } else{
-                        // if no symptom found, then no medical resources provided, set it to ...
-                        hybirdLink1.isClickable = false
-                        hybirdLink2.isClickable = false
-                        hybirdLink1.text = "..."
-                        hybirdLink2.text = "..."
                     }
-
-                }else {
-                    skinProblem.text = "You have not made any analysis"
-                    Toast.makeText(this, "You have not made any analysis", Toast.LENGTH_SHORT).show()
                 }
-            } else {
-                Toast.makeText(this, "Invalid user", Toast.LENGTH_SHORT).show()
+                }
+            }
+            else {
+
+            // Retrieving result value from textView which is from api
+//        resultFromResponse = skinProblem.text.toString()
+            resultFromResponse = "Acne and Rosacea Photos"
+
+            myRef.child(uid!!).child("result").setValue(resultFromResponse)
+            // code to get the response from api and filter the keyword of the symptom and provide user
+            // medical resources
+            for (sym in SymptomEnum.values()) {
+                if (resultFromResponse.contains(sym.symptom)) {
+                    symptom = sym.symptom
+                    //Get column from the table
+                    // if exists, then fetch the data and update the UI
+                    myRef.child(uid.toString()).get().addOnSuccessListener {
+                        if (it.exists()) {
+                            if (it.child("image").exists()) {
+                                //symptom = SymptomEnum.AR.symptom
+                                myRef.child(uid.toString()).child("result").setValue(symptom)
+                                if (getWebsite(symptom).isNotEmpty()) {
+                                    if (getWebsite(symptom).size > 1) {
+                                        hybirdLink1.text = getWebsite(symptom)[0]
+                                        hybirdLink2.text = getWebsite(symptom)[1]
+                                    }
+                                    hybirdLink1.text = getWebsite(symptom)[0]
+                                    // pass the url info based on the clicked link
+                                    val intent = Intent(this, Website::class.java)
+                                    hybirdLink1.setOnClickListener() {
+                                        intent.putExtra("URL", hybirdLink1.text.toString())
+                                        startActivity(intent)
+                                    }
+                                    hybirdLink2.setOnClickListener() {
+                                        intent.putExtra("URL", hybirdLink2.text.toString())
+                                        startActivity(intent)
+                                    }
+                                } else {
+                                    // if no symptom found, then no medical resources provided, set it to ...
+                                    hybirdLink1.isClickable = false
+                                    hybirdLink2.isClickable = false
+                                    hybirdLink1.text = "..."
+                                    hybirdLink2.text = "..."
+                                }
+
+                            } else {
+                                skinProblem.text = "You have not made any analysis"
+                                Toast.makeText(
+                                    this,
+                                    "You have not made any analysis",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        } else {
+                            Toast.makeText(this, "Invalid user", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } else {
+                    //Toast.makeText(this, "Cannot be diagnosed", Toast.LENGTH_SHORT).show()
+                }
             }
         }
+
+
     }
 
     // get website links based on the symptom using enum classes
@@ -217,7 +297,7 @@ class Result : AppCompatActivity() {
 
     // sending request to get the result response from api
     fun getResultFromVolley(image: ByteArray) {
-        val url2: String = "https://10.0.2.2:44374/api/Image"
+        val url2: String = "https://10.0.2.2:5001/api/Image"
 
         // converting to image encoded string
         val imageString = Base64.encodeToString(image, Base64.DEFAULT)
@@ -229,10 +309,14 @@ class Result : AppCompatActivity() {
                 // Process the json
                 try {
                     // pass value on UI textView from received result
-                    skinProblem.text = response.toString()
+                    skinProblem.text = "Acne and Rosacea Photos"
+//                    skinProblem.text = response.toString()
+                    /**
+                     * WAITING FOR CONFIGURE
+                     */
                     Toast.makeText(
                         this,
-                        "Response: \n$response",
+                        "Response: \nAcne and Rosacea Photos",
                         Toast.LENGTH_LONG
                     ).show()
                 } catch (e: Exception) {
@@ -288,3 +372,4 @@ class Result : AppCompatActivity() {
         finish()
     }
 }
+
