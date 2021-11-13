@@ -8,42 +8,41 @@ package project.capstone6.acne_diagnosis
    This is the recycler view, in this class, the layout resources are accessed using findViewById,
    and set the view to current item, then set to make a toast message when click the item.
  */
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 
-class MyRecyclerView(private val newsList: List<NewsFeeds>) :
+class MyRecyclerView(private val adsList: List<HomePageModel>) :
     RecyclerView.Adapter<MyRecyclerView.MyViewHolder>() {
 
 
     class MyViewHolder(newView: View) : RecyclerView.ViewHolder(newView) {
 
         val imageView: ImageView = itemView.findViewById(R.id.img)
-        val newsView: TextView = itemView.findViewById(R.id.newsView)
+        val adsTitle: TextView = itemView.findViewById(R.id.adsTitle)
+        val adsView: TextView = itemView.findViewById(R.id.adsView)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val infoView = LayoutInflater.from(parent.context).inflate(
-            R.layout.news_feeds,
+            R.layout.activity_ads,
             parent, false
         )
         return MyViewHolder(infoView)
     }
 
-    override fun getItemCount() = newsList.size
+    override fun getItemCount() = adsList.size
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
 
-        val currentItem = newsList[position]
+        val currentItem = adsList[position]
 
         holder.imageView.setImageResource(currentItem.imageResource)
-        holder.newsView.text = currentItem.newsFeed
+        holder.adsTitle.text = currentItem.adsTitle
+        holder.adsView.text = currentItem.adsContent
     }
 
 
